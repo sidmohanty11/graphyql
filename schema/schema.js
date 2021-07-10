@@ -2,23 +2,31 @@ const axios = require("axios");
 const graphql = require("graphql");
 const {
     GraphQLObjectType,
-    GraphQLSchema
+    GraphQLSchema,
+    GraphQLList
 } = graphql;
 
 //company schema
 const CompanyType = new GraphQLObjectType({
     name: 'Company',
-    fields: {
+    fields: () => ({
         id: { type: graphql.GraphQLString },
         name: { type: graphql.GraphQLString },
         description: { type: graphql.GraphQLString },
-    }
-})
+        users: { 
+            type: new GraphQLList(UserType),
+            resolve(parentValue, args) {
+                return axios.get(`http://localhost:9001/companies/${parentValue.id}/users`)
+                .then(resp => resp.data);
+            }
+        }
+    })
+});
 
 //user schema
 const UserType = new GraphQLObjectType({
     name: 'User',
-    fields: {
+    fields: () => ({
         id: { type: graphql.GraphQLString },
         firstName: { type: graphql.GraphQLString },
         age: { type: graphql.GraphQLInt },
@@ -29,7 +37,7 @@ const UserType = new GraphQLObjectType({
                 .then(resp => resp.data);
             }
         }
-    }
+    })
 });
 
 // where everything starts.
