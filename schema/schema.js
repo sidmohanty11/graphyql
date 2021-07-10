@@ -3,7 +3,8 @@ const graphql = require("graphql");
 const {
     GraphQLObjectType,
     GraphQLSchema,
-    GraphQLList
+    GraphQLList,
+    GraphQLNonNull
 } = graphql;
 
 //company schema
@@ -65,6 +66,34 @@ const RootQuery = new GraphQLObjectType({
     }
 });
 
+// to mutate stuffs.
+const mutation = new GraphQLObjectType({
+    name: 'Mutation',
+    fields: {
+        addUser: {
+            type: UserType,
+            args: {
+                firstName: { type: new GraphQLNonNull(graphql.GraphQLString) },
+                companyId: { type: graphql.GraphQLString },
+                age: { type: new GraphQLNonNull(graphql.GraphQLInt) },
+            },
+            resolve(parentValue, { firstName, age }) {
+                return axios.post("http://localhost:9001/users", { firstName, age })
+                .then(resp => resp.data);
+            }
+        },
+        deleteUser: {
+            type: UserType,
+            args: { id: { type: new GraphQLNonNull(graphql.GraphQLString) } },
+            resolve(parentValue, { id }) {
+                return axios.delete(`http://localhost:9001/users/${id}`)
+                .then(resp => resp.data);
+            }
+        }
+    }
+});
+
 module.exports = new GraphQLSchema({
-    query: RootQuery
+    query: RootQuery,
+    mutation,
 });
