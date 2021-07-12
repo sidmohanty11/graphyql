@@ -5,7 +5,7 @@ import { useMutation, gql } from "@apollo/client";
 function SongCreate() {
     const [title, setTitle] = useState('');
     const history = useHistory();
-    const [addSong, { data }] = useMutation(mutation);
+    const [addSong] = useMutation(mutation);
 
     const submitSong = (e) => {
         e.preventDefault();
